@@ -2,7 +2,13 @@
 
 📌 Description
 
-This repositoy is a school exam on data treatment. The objectives of the exam were to: 
+This repositoy is a school exam on data treatment.
+
+We were instructed to to store video game data that we had scraped form websites and collected from APIs. 
+
+**The stored data can be found in the merged.csv after you ran the files**
+
+The objectives of the exam were to: 
 
 1/ Collect data from three different sources:
   - Web Scraping: Retrieve information from a website about video games or role-playing games.
@@ -14,6 +20,8 @@ This repositoy is a school exam on data treatment. The objectives of the exam we
 3/ Enhance the data: Add calculations or relevant categories to increase the value of the data (e.g., calculating average statistics, classifying objects by rarity, etc.).
 
 Bonus - Visualize the data: Provide an overview of the enriched data using tables or charts.
+
+
 
 🛠 Installation
 ```
@@ -37,6 +45,8 @@ Bonus - Visualize the data: Provide an overview of the enriched data using table
 node dataTreatment.js
 node scraper.js
 node csvFileJoiner.js
+
+#The stored data can be found in the merged.csv after you ran the files
 ```
 
 📜 License
