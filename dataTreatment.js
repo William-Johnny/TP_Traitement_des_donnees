@@ -2,66 +2,63 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
 
-let tab_quotes = [];
-const authorNames = [];
-let test =[];
+let reviewLinks = [];
+let gameDetailsTab = [];
 
-axios.get(`https://www.ign.com/reviews/games`)
-  .then(res => {
-    results = res.data;
-    const $ = cheerio.load(results);
-    const gameReviewLinks = $('.main-content > a');
-   
-    gameReviewLinks.each((index,element) => {
-      test.push($(element).attr('href'));
-    });
+const getGameIdByName = async (gameName) => {
+    try {
+        const response = await axios.get(`https://api.rawg.io/api/games?key=3fa07b920e8044a2b6a5e8daebbb34a4&search=${encodeURIComponent(gameName)}`);
+        if (response.data.results.length > 0) {
+            return response.data.results[0].id;
+        } else {
+            console.log('No game found.');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching game ID:', error);
+        return null;
+    }
+};
 
-    
-    const csvFilePath = './links.csv';
-    
-    fs.writeFileSync(csvFilePath, `Links\n`);
-    
-    let i = 0;
-    let t = 1;
-    const makeFile = () => {
-    //   newText='';
-    //   for (let n = 0; n < test.length; n++) {
-    //     if (test[i] === undefined || test[t] === undefined) {
-    //       continue;
-    //     }
-    //     tab_quotes.push([test[i],test[t]]);
-        
-    //     i=i+2;
-    //     t=t+2;
-    //   }
+const getGameDetails = async (id) => {
+    if (!id) return null;
+    try {
+        const response = await axios.get(`https://api.rawg.io/api/games/${id}?key=3fa07b920e8044a2b6a5e8daebbb34a4`);
+        const details = response.data;
+        return [details.name, details.released, details.playtime];
+    } catch (error) {
+        console.error('Error fetching game details:', error);
+        return null;
+    }
+};
 
-        test.forEach((el)=>{
-            fs.appendFile(csvFilePath, `"${el}"\n`, (err) => {
-            if (err) {
-                console.error('Error appending to file:', err);
-            }
+const fetchReviewsAndWriteToFile = async () => {
+    try {
+
+        const csvFilePath = './videoGameDetailsAPI.csv';
+        fs.writeFileSync(csvFilePath, `Name, Date, Playtime\n`);
+
+        const gameId = await getGameIdByName("The Witcher 3");
+        if (!gameId) return;
+
+        const gameDetails = await getGameDetails(gameId);
+        if (gameDetails) {
+            gameDetailsTab.push(gameDetails);
+        }
+
+        gameDetailsTab.forEach((el) => {
+            fs.appendFile(csvFilePath, `"${el[0]}","${el[1]}", "${el[2]}"\n`, (err) => {
+                if (err) {
+                    console.error('Error appending to file:', err);
+                }
             });
         });
 
-    //   tab_quotes.forEach((element) => {
-        
-    //     if (element[2] !== undefined) {
-    //       newText = element[2].replace(/(\r\n|\n|\r)/gm, "");
-    //     }else{
-    //       newText = "no data";
-    //     }
-        
-    //     fs.appendFile(csvFilePath, `"${element[0]}","${element[1]}","${newText}"\n`, (err) => {
-    //       if (err) {
-    //         console.error('Error appending to file:', err);
-    //       }
-    //     });
-    //   });
+        console.log('Data successfully saved!');
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
     }
+};
 
-    setTimeout(() => {
-        makeFile()
-    }, 5000);
-  })
-// for (let x = 1; x <= 10; x++) {
-// }
+// Run the function
+fetchReviewsAndWriteToFile();
